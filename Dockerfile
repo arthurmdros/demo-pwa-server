@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 
 # Copiar package.json e instalar deps
 COPY package*.json ./
-RUN npm install && npm run build && npm prune --production
+RUN npm install
 
 # Copiar código
 COPY . .
