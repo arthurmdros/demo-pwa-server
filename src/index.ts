@@ -169,17 +169,19 @@ app.get("/users", async (req, res) => {
 
 // POST new user
 app.post("/users", async (req, res) => {
-  const { id, name, email } = req.body;
-  if (!name || !email)
+  const { name, email } = req.body;
+  if (!name || !email) {
     return res.status(400).json({ error: "Dados incompletos" });
+  }
 
   try {
     const result = await db.run(
-      `INSERT INTO users (id, name, email) VALUES (?, ?, ?)`,
-      id ?? null,
+      `INSERT INTO users (name, email) VALUES (?, ?)`,
       name,
       email
     );
+
+    // SQLite gera o lastID automaticamente
     const user = { id: result.lastID, name, email };
     res.status(201).json(user);
   } catch (err: any) {
