@@ -1,7 +1,8 @@
 import amqp from "amqplib";
 
 const RABBITMQ_URL =
-  process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5673";
+  process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
+  // process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5673";
 
 let connection: any; // amqp.Connection;
 let channel: amqp.Channel;
