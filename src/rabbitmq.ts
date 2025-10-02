@@ -8,7 +8,6 @@ let channel: amqp.Channel;
 
 export async function connectRabbitMQ(queueName: string) {
   const url = process.env.RABBITMQ_URL; // vem do Railway
-  console.log(url)
   if (!url) throw new Error("❌ RABBITMQ_URL não configurada!");
 
   console.log("🔗 Conectando no RabbitMQ:", url);
