@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import pkg from '../package.json' with { type: "json" };
 import { initDb } from "./database/db.js";
 import { connectRabbitMQ } from "./rabbitmq.js";
 
@@ -13,6 +14,14 @@ let rabbitConnection: any;
 const clients: any[] = []; // SSE clients
 const RABBIT_QUEUE = "notifications";
 let lastQueueStatus: "connected" | "disconnected" = "disconnected";
+
+// ---------------- GET raiz - versão ----------------
+app.get("/", (req, res) => {
+  res.json({
+    name: pkg.name,
+    version: pkg.version,
+  });
+});
 
 // ---------------- FUNÇÃO DE NOTIFICAÇÃO SSE ----------------
 function notifyClients(event: string, data: any) {
