@@ -1,8 +1,8 @@
 import cors from "cors";
 import express from "express";
 import pkg from '../package.json' with { type: "json" };
+import { initDb } from "./database/db.js";
 import { connectRabbitMQ } from "./rabbitmq.js";
-import { initDb } from "./utils/database/db.js";
 import { buildPaginationResponse, getPaginationParams } from "./utils/pagination.js";
 import { buildFilters, buildSorting } from "./utils/search.js";
 
