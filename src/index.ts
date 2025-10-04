@@ -1,8 +1,10 @@
 import cors from "cors";
 import express from "express";
 import pkg from '../package.json' with { type: "json" };
-import { initDb } from "./database/db.js";
 import { connectRabbitMQ } from "./rabbitmq.js";
+import { initDb } from "./utils/database/db.js";
+import { buildPaginationResponse, getPaginationParams } from "./utils/pagination.js";
+import { buildFilters, buildSorting } from "./utils/search.js";
 
 const app = express();
 app.use(cors());
@@ -168,8 +170,38 @@ app.post("/send", (req, res) => {
 // GET all users
 app.get("/users", async (req, res) => {
   try {
-    const users = await db.all("SELECT * FROM users");
-    res.json(users);
+    // --- Apenas paginação é obrigatória ---
+    const { page, limit, offset } = getPaginationParams(req);
+
+    // --- Filtros opcionais ---
+    const { whereSQL, params } = buildFilters(req, ["name", "email"]);
+
+    // --- Ordenação opcional ---
+    const { orderSQL, sortField, sortOrder } = buildSorting(req, ["id", "name", "email", "created_at"]);
+
+    // --- Monta a query final ---
+    const query = `
+      SELECT * FROM users
+      ${whereSQL}
+      ${orderSQL}
+      LIMIT ? OFFSET ?
+    `;
+
+    const users = await db.all(query, [...params, limit, offset]);
+
+    const totalResult = await db.get(
+      `SELECT COUNT(*) as total FROM users ${whereSQL}`,
+      params
+    );
+
+    const response = buildPaginationResponse(users, totalResult.total, page, limit);
+
+    res.json({
+      ...response,
+      sortField: sortField || null,
+      sortOrder,
+      filters: req.query,
+    });
   } catch (err: any) {
     console.error("Erro ao buscar usuários:", err);
     res.status(500).json({ error: "Erro ao buscar usuários" });
